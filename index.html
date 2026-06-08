@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение на свадьбу</title>
+    <!-- Подключаем API Яндекс.Карт -->
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=ваш_ключ_яндекс_карт&lang=ru_RU" type="text/javascript"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f6f3ee;
+            color: #3d3b38;
+            text-align: center;
+            line-height: 1.6;
+        }
+        section {
+            padding: 60px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        h2 {
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            color: #5c564f;
+        }
+        .hero {
+            background-color: #e5dfd5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 100%;
+        }
+        .hero h1 {
+            font-weight: 300;
+            font-size: 2.8em;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+        .date {
+            font-size: 1.3em;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+        .timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .timer-item {
+            background: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            min-width: 55px;
+        }
+        .timer-item span {
+            display: block;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #7a7065;
+        }
+        .timer-item label {
+            font-size: 0.75em;
+            color: #999;
+            text-transform: uppercase;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            text-align: left;
+            max-width: 400px;
+            margin: 40px auto 0 auto;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 5px;
+            bottom: 5px;
+            width: 1px;
+            background: #c7bfc0;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #8a8074;
+        }
+        .time {
+            font-weight: bold;
+            color: #8a8074;
+            font-size: 1.1em;
+        }
+        .event-title {
+            font-weight: 600;
+            margin: 2px 0;
+        }
+        .event-desc {
+            font-size: 0.9em;
+            color: #777;
+        }
+        .palette {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        .color-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .c1 { background-color: #e8ded4; }
+        .c2 { background-color: #d0c3b4; }
+        .c3 { background-color: #b2a596; }
+        .c4 { background-color: #948777; }
+        .c5 { background-color: #efece6; }
+        .address {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        form {
+            background: #fff;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label.group-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            color: #4a4540;
+        }
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: #fafafa;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .radio-group label {
+            font-weight: normal;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #8a8074;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background-color: #73695e;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #e0d9d0;
+            margin: 40px auto;
+            max-width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. ГЛАВНЫЙ ЭКРАН -->
+    <section class="hero">
+        <h1>Артём & Юлия</h1>
+        <div class="date">15.08.2026</div>
+        <p>До торжества осталось:</p>
+        <div class="timer">
+            <div class="timer-item"><span id="days">00</span><label>дн</label></div>
+            <div class="timer-item"><span id="hours">00</span><label>час</label></div>
+            <div class="timer-item"><span id="minutes">00</span><label>мин</label></div>
+        </div>
+    </section>
+
+    <!-- 2. ТАЙМИНГ -->
+    <section>
+        <h2>Тайминг дня</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">15:00</div>
+                <div class="event-title">Сбор гостей</div>
+                <div class="event-desc">Приветственный фуршет, знакомство и настрой на праздник</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">16:00</div>
+                <div class="event-title">Торжественная церемония</div>
+                <div class="event-desc">Самый трогательный момент, когда мы скажем друг другу «Да»</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">17:00</div>
+                <div class="event-title">Свадебный банкет</div>
+                <div class="event-desc">Время поздравлений, вкусной еды, танцев и веселья</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">21:00</div>
+                <div class="event-title">Разрезание торта</div>
+                <div class="event-desc">Сладкая традиция вечера</div>
+            </div>
+            <div class="timeline-item">
+                <div class="time">23:00</div>
+                <div class="event-title">Финал вечера</div>
+                <div class="event-desc">Окончание официальной программы праздника</div>
+            </div>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- 3. ДРЕСС-КОД -->
+    <section>
+        <h2>Dress Code</h2>
+        <p>Нам будет очень приятно, если вы поддержите цветовую гамму нашей свадьбы в своих нарядах:</p>
+        <div class="palette">
+            <div class="color-circle c1"></div>
+            <div class="color-circle c2"></div>
+            <div class="color-circle c3"></div>
+            <div class="color-circle c4"></div>
+            <div class="color-circle c5"></div>
+        </div>
+        <p style="font-size: 0.95em; color: #666;">
+            <strong>Девушки:</strong> пастельные тона (просьба избегать белого цвета).<br>
+            <strong>Мужчины:</strong> классический стиль костюмов.
+        </p>
+    </section>
+
+    <hr>
+
+    <!-- 4. ЛОКАЦИЯ И КАРТА -->
+    <section>
+        <h2>Место проведения</h2>
+        <div class="address">КЧР, Эркен-Шахар, ул. Шоссейная, д. 5<br>Ресторан «Алмаз & Империя»</div>
+        <div id="map"></div>
+    </section>
+
+    <hr>
+
+    <!-- 5. АНКЕТА RSVP -->
+    <section style="margin-bottom: 60px;">
+        <h2>Анкета гостя</h2>
+        <p>Пожалуйста, подтвердите ваше участие до 01.06.2026</p>
+
+        <form id="telegramForm">
+            <div class="form-group">
+                <label class="group-label" for="name">Ваше Имя и Фамилия</label>
+                <input type="text" id="name" required placeholder="Имя Фамилия">
+            </div>
+
+            <div class="form-group">
+                <label class="group-label">Планируете ли вы присутствовать?</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="presence" value="Приду с парой"> Да, приду с парой</label>
+                    <label><input type="radio" name="presence" value="Приду один/одна" checked> Да, приду один/одна</label>
+                    <label><input type="radio" name="presence" value="Не смогу присутствовать"> К сожалению, не смогу</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="group-label">Нужен ли вам трансфер?</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="transfer" value="Нужен туда и обратно" checked> Нужен туда и обратно</label>
+                    <label><input type="radio" name="transfer" value="Только до банкета"> Только до банкета</label>
+                    <label><input type="radio" name="transfer" value="Только обратно"> Только обратно</label>
+                    <label><input type="radio" name="transfer" value="Не нужен"> Доберусь самостоятельно</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="group-label" for="alcohol">Ваши предпочтения по напиткам:</label>
+                <select id="alcohol">
+                    <option value="Вино / Шампанское">Вино / Шампанское</option>
+                    <option value="Крепкий алкоголь">Крепкий алкоголь</option>
+                    <option value="И то, и другое">И то, и другое</option>
+                    <option value="Безалкогольные напитки">Не пью алкоголь</option>
+                </select>
+            </div>
+
+            <button type="submit">Подтвердить участие</button>
+        </form>
+    </section>
+
+    <script>
+        // ==================== ТАЙМЕР ====================
+        const targetDate = new Date("August 15, 2026 15:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference < 0) {
+                document.querySelector('.timer').innerHTML = "Этот счастливый день настал!";
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+            document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // ==================== КАРТА ЯНДЕКС ====================
+        ymaps.ready(init);
+
+        function init() {
+            var myMap = new ymaps.Map("map", {
+                center: [44.364415, 41.942205],
+                zoom: 15,
+                controls: ['zoomControl']
+            });
+
+            var myPlacemark = new ymaps.Placemark(
+                [44.364415, 41.942205],
+                {
+                    hintContent: 'Ресторан Алмаз & Империя',
+                    balloonContent: 'КЧР, Эркен-Шахар, ул. Шоссейная, д. 5'
+                },
+                {
+                    preset: 'islands#violetDotIconWithCaption'
+                }
+            );
+
+            myMap.geoObjects.add(myPlacemark);
+            myMap.behaviors.disable('scrollZoom');
+        }
+
+        // ==================== ОТПРАВКА В TELEGRAM ====================
+        /*
+            ВНИМАНИЕ! Замените значения ниже на свои:
+            1. TOKEN — токен вашего бота (получить у @BotFather)
+            2. CHAT_ID — ваш ID чата (можно узнать у @userinfobot)
+        */
+        const TOKEN = "ВАШ_ТОКЕН_БОТА";   // ← заменить
+        const CHAT_ID = "ВАШ_ЧАТ_ID";     // ← заменить
+        const TELEGRAM_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+
+        document.getElementById("telegramForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value.trim();
+            if (!name) {
+                alert("Пожалуйста, введите ваше имя и фамилию.");
+                return;
+            }
+
+            const presence = document.querySelector('input[name="presence"]:checked').value;
+            const transfer = document.querySelector('input[name="transfer"]:checked').value;
+            const alcohol = document.getElementById("alcohol").value;
+
+            // Формируем сообщение (HTML разрешён, parse_mode = 'html')
+            let message = "<b>🤵👰 Ответ на приглашение:</b>\n\n";
+            message += `<b>👤 Имя:</b> ${name}\n`;
+            message += `<b>❓ Присутствие:</b> ${presence}\n`;
+            message += `<b>🚌 Трансфер:</b> ${transfer}\n`;
+            message += `<b>🍷 Алкоголь:</b> ${alcohol}`;
+
+            fetch(TELEGRAM_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    parse_mode: "html",
+                    text: message
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Спасибо! Ответ успешно отправлен.");
+                        document.getElementById("telegramForm").reset();
+                    } else {
+                        alert("Ошибка отправки. Проверьте правильность TOKEN и CHAT_ID.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Ошибка:", error);
+                    alert("Не удалось отправить сообщение. Проверьте подключение к интернету.");
+                });
+        });
+    </script>
+</body>
+</html>
